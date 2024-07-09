@@ -13,7 +13,6 @@ COPY src /app/src
 
 RUN gradle shadowJar
 
-# Копируйте собранный JAR-файл
 COPY build/libs/app-1.0-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
