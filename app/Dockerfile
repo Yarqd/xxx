@@ -1,23 +1,9 @@
 FROM eclipse-temurin:21-jdk
 
-ARG GRADLE_VERSION=8.6
-
-RUN apt-get update && apt-get install -yq unzip
-
-RUN wget -q https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
-    && unzip gradle-${GRADLE_VERSION}-bin.zip \
-    && rm gradle-${GRADLE_VERSION}-bin.zip
-
-ENV GRADLE_HOME=/opt/gradle
-
-RUN mv gradle-${GRADLE_VERSION} ${GRADLE_HOME}
-
-ENV PATH=$PATH:$GRADLE_HOME/bin
-
 WORKDIR /app
 
-COPY . .
+COPY build/libs/app-1.0-SNAPSHOT.jar app.jar
 
-RUN gradle installDist
+EXPOSE 8080
 
-CMD ["./build/install/app/bin/app"]
+CMD ["java", "-jar", "app.jar"]
