@@ -22,6 +22,4 @@ RUN gradle shadowJar
 
 EXPOSE 8080
 
-ENV JDBC_DATABASE_URL="jdbc:postgresql://db:5432/postgres?password=password&user=postgres"
-
 CMD ["java", "-jar", "build/libs/app-1.0-SNAPSHOT.jar"]
