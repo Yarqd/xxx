@@ -13,14 +13,14 @@ public class DatabaseConfig {
 
     public static DataSource getDataSource() {
         HikariConfig config = new HikariConfig();
-        String dbUrl = System.getenv().getOrDefault("JDBC_DATABASE_URL", H2_URL);
-
-        config.setJdbcUrl(dbUrl);
-
-        if (dbUrl.equals(H2_URL)) {
+        String dbUrl = System.getenv("JDBC_DATABASE_URL");
+        if (dbUrl == null || dbUrl.isEmpty()) {
+            dbUrl = H2_URL;
             config.setUsername(H2_USERNAME);
             config.setPassword(H2_PASSWORD);
         }
+
+        config.setJdbcUrl(dbUrl);
 
         return new HikariDataSource(config);
     }
