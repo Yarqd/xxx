@@ -14,7 +14,7 @@ COPY src /app/src
 
 RUN ./gradlew shadowJar
 
-COPY build/libs/app-1.0-SNAPSHOT-all.jar app.jar
+COPY build/libs/app-1.0-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
 
