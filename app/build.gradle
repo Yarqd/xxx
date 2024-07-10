@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id 'checkstyle'
     id 'application'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'hexlet.code'
@@ -32,10 +31,4 @@ tasks.withType(Checkstyle) {
         xml.required = false
         html.required = true
     }
-}
-
-shadowJar {
-    archiveBaseName.set('app')
-    archiveClassifier.set('')
-    archiveVersion.set(version)
 }
