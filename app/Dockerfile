@@ -8,10 +8,11 @@ RUN apt-get update && apt-get install -y wget unzip \
 
 WORKDIR /app
 
-COPY build.gradle settings.gradle /app/
+COPY build.gradle settings.gradle gradlew gradlew.bat /app/
+COPY gradle /app/gradle
 COPY src /app/src
 
-RUN gradle shadowJar
+RUN ./gradlew shadowJar
 
 COPY build/libs/app-1.0-SNAPSHOT-all.jar app.jar
 
