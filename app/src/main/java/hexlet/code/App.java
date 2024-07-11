@@ -1,6 +1,10 @@
 package hexlet.code;
 
+import gg.jte.ContentType;
+import gg.jte.TemplateEngine;
+import gg.jte.resolve.ResourceCodeResolver;
 import io.javalin.Javalin;
+import io.javalin.rendering.template.JavalinJte;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,8 +27,12 @@ public class App {
      * @return Экземпляр Javalin
      */
     public static Javalin getApp() {
-        Javalin app = Javalin.create();
-        app.get("/", ctx -> ctx.result("Hello World"));
+        Javalin app = Javalin.create(config -> {
+            config.fileRenderer(new JavalinJte(createTemplateEngine()));
+        });
+
+        app.get("/", ctx -> ctx.render("index.jte"));
+
         return app;
     }
 
@@ -61,5 +69,16 @@ public class App {
     private static int getPort() {
         String port = System.getenv().getOrDefault("PORT", "8080");
         return Integer.parseInt(port);
+    }
+
+    /**.
+     * Создает и настраивает движок шаблонизатора JTE
+     *
+     * @return Экземпляр TemplateEngine
+     */
+    private static TemplateEngine createTemplateEngine() {
+        ClassLoader classLoader = App.class.getClassLoader();
+        ResourceCodeResolver codeResolver = new ResourceCodeResolver("templates", classLoader);
+        return TemplateEngine.create(codeResolver, ContentType.Html);
     }
 }
