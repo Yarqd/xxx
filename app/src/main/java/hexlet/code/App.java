@@ -32,6 +32,9 @@ public class App {
         });
 
         app.get("/", ctx -> ctx.render("index.jte"));
+        app.post("/urls", UrlController::addUrl);
+        app.get("/urls", UrlController::listUrls);
+        app.get("/urls/{id}", UrlController::showUrl);
 
         return app;
     }
