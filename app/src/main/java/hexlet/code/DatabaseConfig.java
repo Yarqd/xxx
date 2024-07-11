@@ -2,7 +2,6 @@ package hexlet.code;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
 import javax.sql.DataSource;
 
 public class DatabaseConfig {
@@ -18,10 +17,11 @@ public class DatabaseConfig {
             dbUrl = H2_URL;
             config.setUsername(H2_USERNAME);
             config.setPassword(H2_PASSWORD);
+        } else {
+            System.out.println("Using JDBC_DATABASE_URL: " + dbUrl);
         }
 
         config.setJdbcUrl(dbUrl);
-
         return new HikariDataSource(config);
     }
 }
