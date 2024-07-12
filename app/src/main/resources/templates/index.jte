@@ -1,26 +1,30 @@
+@import java.lang.String
+@param String flash
+@param String flashType
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Главная страница</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавление URL</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
-<div class="container">
-    <h1>Добавить URL</h1>
+<div class="container mt-4">
+    <h1>Добавление URL</h1>
+    @if(flash != null)
+        <div class="alert @if(flashType != null && flashType.equals("error")) alert-danger @elseif(flashType != null && flashType.equals("success")) alert-success @endif" role="alert">
+            ${flash}
+        </div>
+    @endif
     <form action="/urls" method="post">
         <div class="form-group">
-            <label for="url">URL</label>
+            <label for="url">URL:</label>
             <input type="text" class="form-control" id="url" name="url" required>
         </div>
         <button type="submit" class="btn btn-primary">Добавить</button>
     </form>
-    <a href="/urls" class="btn btn-secondary mt-3">Список URL</a>
-    @if(flashMessage != null)
-        <div class="alert alert-info mt-3">
-            @flashMessage
-        </div>
-    @endif
 </div>
 </body>
 </html>

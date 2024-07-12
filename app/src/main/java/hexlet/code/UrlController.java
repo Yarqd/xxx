@@ -1,18 +1,21 @@
 package hexlet.code;
 
+import hexlet.code.model.Url;
+import hexlet.code.repository.UrlRepository;
 import io.javalin.http.Context;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class UrlController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UrlController.class);
+    private static final UrlRepository URL_REPOSITORY = new UrlRepository(DatabaseConfig.getDataSource());
 
     public static void addUrl(Context ctx) {
         String inputUrl = ctx.formParam("url");
@@ -22,73 +25,64 @@ public class UrlController {
             String domainUrl = url.getProtocol() + "://" + url.getHost() + (url.getPort() == -1 ? "" : ":"
                     + url.getPort());
 
-            try (Connection conn = DatabaseConfig.getDataSource().getConnection()) {
-                String checkSql = "SELECT COUNT(*) FROM urls WHERE name = ?";
-                PreparedStatement checkStmt = conn.prepareStatement(checkSql);
-                checkStmt.setString(1, domainUrl);
-
-                ResultSet rs = checkStmt.executeQuery();
-                rs.next();
-                if (rs.getInt(1) > 0) {
+            try {
+                if (URL_REPOSITORY.existsByName(domainUrl)) {
                     ctx.sessionAttribute("flash", "Страница уже существует");
-                    ctx.redirect("/urls");
+                    ctx.sessionAttribute("flashType", "error");
+                    ctx.redirect("/");
                     return;
                 }
 
-                String sql = "INSERT INTO urls (name, created_at) VALUES (?, ?)";
-                PreparedStatement stmt = conn.prepareStatement(sql);
-                stmt.setString(1, domainUrl);
-                stmt.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
-                stmt.executeUpdate();
+                Url newUrl = new Url();
+                newUrl.setName(domainUrl);
+                newUrl.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+                URL_REPOSITORY.save(newUrl);
 
                 ctx.sessionAttribute("flash", "Страница успешно добавлена");
+                ctx.sessionAttribute("flashType", "success");
             } catch (SQLException e) {
+                LOGGER.error("Ошибка при добавлении URL", e);
                 ctx.sessionAttribute("flash", "Ошибка при добавлении URL: " + e.getMessage());
+                ctx.sessionAttribute("flashType", "error");
             }
         } catch (MalformedURLException e) {
+            LOGGER.error("Некорректный URL", e);
             ctx.sessionAttribute("flash", "Некорректный URL");
+            ctx.sessionAttribute("flashType", "error");
         }
 
-        ctx.redirect("/urls");
+        ctx.redirect("/");
     }
 
     public static void listUrls(Context ctx) {
-        List<String> urls = new ArrayList<>();
-        try (Connection conn = DatabaseConfig.getDataSource().getConnection()) {
-            String sql = "SELECT id, name FROM urls";
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
-            while (rs.next()) {
-                urls.add(rs.getString("name"));
-            }
+        try {
+            List<Url> urls = URL_REPOSITORY.findAll();
+            ctx.attribute("urls", urls);
+            ctx.render("urls.jte", Map.of("urls", urls));
         } catch (SQLException e) {
+            LOGGER.error("Ошибка при получении URL", e);
             ctx.sessionAttribute("flash", "Ошибка при получении URL: " + e.getMessage());
+            ctx.sessionAttribute("flashType", "error");
+            ctx.redirect("/");
         }
-
-        ctx.attribute("urls", urls);
-        ctx.render("urls.jte");
     }
 
     public static void showUrl(Context ctx) {
         int id = Integer.parseInt(ctx.pathParam("id"));
-        String urlName = null;
-        try (Connection conn = DatabaseConfig.getDataSource().getConnection()) {
-            String sql = "SELECT name FROM urls WHERE id = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                urlName = rs.getString("name");
+        try {
+            Url url = URL_REPOSITORY.findById(id);
+            if (url != null) {
+                ctx.attribute("url", url);
+                ctx.render("url.jte", Map.of("url", url));
+            } else {
+                ctx.sessionAttribute("flash", "URL не найден");
+                ctx.sessionAttribute("flashType", "error");
+                ctx.redirect("/urls");
             }
         } catch (SQLException e) {
+            LOGGER.error("Ошибка при получении URL", e);
             ctx.sessionAttribute("flash", "Ошибка при получении URL: " + e.getMessage());
-        }
-
-        if (urlName != null) {
-            ctx.attribute("url", urlName);
-            ctx.render("url.jte");
-        } else {
-            ctx.sessionAttribute("flash", "URL не найден");
+            ctx.sessionAttribute("flashType", "error");
             ctx.redirect("/urls");
         }
     }

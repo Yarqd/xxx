@@ -13,25 +13,29 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collections;
+import java.util.Map;
 
-/**.
- * Основной класс приложения
- */
 public class App {
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
     private static final DataSource DATA_SOURCE = DatabaseConfig.getDataSource();
 
-    /**.
-     * Создает и возвращает экземпляр Javalin
-     *
-     * @return Экземпляр Javalin
-     */
     public static Javalin getApp() {
         Javalin app = Javalin.create(config -> {
             config.fileRenderer(new JavalinJte(createTemplateEngine()));
         });
 
-        app.get("/", ctx -> ctx.render("index.jte"));
+        app.get("/", ctx -> {
+            String flashMessage = ctx.sessionAttribute("flash");
+            String flashType = ctx.sessionAttribute("flashType");
+            ctx.sessionAttribute("flash", null);
+            ctx.sessionAttribute("flashType", null);
+            ctx.render("index.jte", Map.of(
+                    "flash", flashMessage != null ? flashMessage : "",
+                    "flashType", flashType != null ? flashType : ""
+            ));
+        });
+
         app.post("/urls", UrlController::addUrl);
         app.get("/urls", UrlController::listUrls);
         app.get("/urls/{id}", UrlController::showUrl);
@@ -39,11 +43,6 @@ public class App {
         return app;
     }
 
-    /**.
-     * Точка входа в приложение
-     *
-     * @param args Аргументы командной строки
-     */
     public static void main(String[] args) {
         initializeDatabase();
         Javalin app = getApp();
@@ -51,34 +50,27 @@ public class App {
         LOGGER.info("Application started on port " + getPort());
     }
 
-    /**.
-     * Инициализирует базу данных, выполняя SQL-скрипт из файла schema.sql
-     */
     private static void initializeDatabase() {
         try (Connection conn = DATA_SOURCE.getConnection();
-             Statement stmt = conn.createStatement()) {
-            String sql = new String(App.class.getResourceAsStream("/schema.sql").readAllBytes());
+             Statement stmt = conn.createStatement();
+             var resourceStream = App.class.getResourceAsStream("/schema.sql")) {
+
+            if (resourceStream == null) {
+                throw new IOException("Resource /schema.sql not found");
+            }
+            String sql = new String(resourceStream.readAllBytes());
             stmt.execute(sql);
+
         } catch (SQLException | IOException e) {
             LOGGER.error("Error initializing the database", e);
         }
     }
 
-    /**.
-     * Получает номер порта из переменной окружения или возвращает значение по умолчанию (8080)
-     *
-     * @return Номер порта
-     */
     private static int getPort() {
         String port = System.getenv().getOrDefault("PORT", "8080");
         return Integer.parseInt(port);
     }
 
-    /**.
-     * Создает и настраивает движок шаблонизатора JTE
-     *
-     * @return Экземпляр TemplateEngine
-     */
     private static TemplateEngine createTemplateEngine() {
         ClassLoader classLoader = App.class.getClassLoader();
         ResourceCodeResolver codeResolver = new ResourceCodeResolver("templates", classLoader);
