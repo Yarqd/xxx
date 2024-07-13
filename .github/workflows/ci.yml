@@ -21,8 +21,10 @@ jobs:
         gradle-version: '8.2'
 
     - name: Build with Gradle
+      working-directory: ./app
       run: gradle build
 
     - name: Test with Gradle
+      working-directory: ./app
       run: gradle test
 
