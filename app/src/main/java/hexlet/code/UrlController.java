@@ -68,8 +68,8 @@ public class UrlController {
                     return Map.of(
                             "id", String.valueOf(url.getId()),
                             "name", url.getName(),
-                            "lastCheckedAt", latestCheck != null ? DATE_FORMAT.format
-                                    (latestCheck.getCreatedAt()) : "Не проверялось",
+                            "lastCheckedAt", latestCheck != null
+                                    ? DATE_FORMAT.format(latestCheck.getCreatedAt()) : "Не проверялось",
                             "statusCode", latestCheck != null ? String.valueOf(latestCheck.getStatusCode()) : "N/A"
                     );
                 } catch (SQLException e) {

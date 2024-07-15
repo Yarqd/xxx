@@ -39,8 +39,8 @@ public class UrlCheckController {
             urlCheck.setTitle(doc.title());
             urlCheck.setH1(doc.selectFirst("h1") != null
                     ? doc.selectFirst("h1").text() : "");
-            urlCheck.setDescription(doc.selectFirst("meta[name=description]") != null ?
-                    doc.selectFirst("meta[name=description]").attr("content") : "");
+            urlCheck.setDescription(doc.selectFirst("meta[name=description]") != null
+                    ? doc.selectFirst("meta[name=description]").attr("content") : "");
 
         } catch (Exception e) {
             LOGGER.error("Error while checking URL", e);
