@@ -17,7 +17,8 @@ import java.util.stream.Collectors;
 public class UrlController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlController.class);
     private static final UrlRepository URL_REPOSITORY = new UrlRepository(DatabaseConfig.getDataSource());
-    private static final UrlCheckRepository URL_CHECK_REPOSITORY = new UrlCheckRepository(DatabaseConfig.getDataSource());
+    private static final UrlCheckRepository URL_CHECK_REPOSITORY = new UrlCheckRepository(
+            DatabaseConfig.getDataSource());
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public static void addUrl(Context ctx) {
@@ -67,7 +68,8 @@ public class UrlController {
                     return Map.of(
                             "id", String.valueOf(url.getId()),
                             "name", url.getName(),
-                            "lastCheckedAt", latestCheck != null ? DATE_FORMAT.format(latestCheck.getCreatedAt()) : "Не проверялось",
+                            "lastCheckedAt", latestCheck != null ? DATE_FORMAT.format
+                                    (latestCheck.getCreatedAt()) : "Не проверялось",
                             "statusCode", latestCheck != null ? String.valueOf(latestCheck.getStatusCode()) : "N/A"
                     );
                 } catch (SQLException e) {

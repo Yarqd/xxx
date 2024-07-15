@@ -16,7 +16,8 @@ import java.sql.Timestamp;
 
 public class UrlCheckController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlCheckController.class);
-    private static final UrlCheckRepository URL_CHECK_REPOSITORY = new UrlCheckRepository(DatabaseConfig.getDataSource());
+    private static final UrlCheckRepository URL_CHECK_REPOSITORY = new UrlCheckRepository(
+            DatabaseConfig.getDataSource());
     private static final UrlRepository URL_REPOSITORY = new UrlRepository(DatabaseConfig.getDataSource());
 
     public static void checkUrl(Context ctx) {
@@ -36,7 +37,8 @@ public class UrlCheckController {
 
             Document doc = Jsoup.parse(response.getBody());
             urlCheck.setTitle(doc.title());
-            urlCheck.setH1(doc.selectFirst("h1") != null ? doc.selectFirst("h1").text() : "");
+            urlCheck.setH1(doc.selectFirst("h1") != null
+                    ? doc.selectFirst("h1").text() : "");
             urlCheck.setDescription(doc.selectFirst("meta[name=description]") != null ?
                     doc.selectFirst("meta[name=description]").attr("content") : "");
 

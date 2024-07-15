@@ -38,7 +38,8 @@ public class UrlCheckTest {
     @Test
     public void testCheckUrl() throws Exception {
         MockWebServer mockWebServer = new MockWebServer();
-        mockWebServer.enqueue(new MockResponse().setBody("<html><head><title>Test Title</title></head><body><h1>Test H1</h1></body></html>"));
+        mockWebServer.enqueue(new MockResponse().setBody("<html><head><title>Test Title</title>"
+                + "</head><body><h1>Test H1</h1></body></html>"));
         mockWebServer.start();
 
         String mockUrl = mockWebServer.url("/").toString();
@@ -58,7 +59,7 @@ public class UrlCheckTest {
 
             // Step 2: Check URL
             given().baseUri(client.getOrigin())
-                    .config(config().redirect(redirectConfig().followRedirects(false))) // отключаем автоматическое перенаправление
+                    .config(config().redirect(redirectConfig().followRedirects(false)))
                     .log().all() // Логируем запрос и ответ
                     .post("/urls/1/checks")
                     .then()
