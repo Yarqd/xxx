@@ -17,6 +17,9 @@ import static org.hamcrest.Matchers.containsString;
 
 public class UrlCheckTest {
 
+    /**
+     * Sets up the test environment.
+     */
     @BeforeEach
     public void setUp() throws Exception {
         try (Connection conn = DatabaseConfig.getDataSource().getConnection();

@@ -12,22 +12,28 @@ import java.sql.Statement;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
 
-public class AppTest {
+public final class AppTest {
 
+    /**
+     * Sets up the test environment.
+     */
     @BeforeEach
     public void setUp() {
         try (Connection conn = DatabaseConfig.getDataSource().getConnection();
              Statement stmt = conn.createStatement()) {
-            String sql = "CREATE TABLE IF NOT EXISTS urls (" +
-                    "id SERIAL PRIMARY KEY, " +
-                    "name VARCHAR(255) NOT NULL, " +
-                    "created_at TIMESTAMP NOT NULL)";
+            String sql = "CREATE TABLE IF NOT EXISTS urls ("
+                    + "id SERIAL PRIMARY KEY, "
+                    + "name VARCHAR(255) NOT NULL, "
+                    + "created_at TIMESTAMP NOT NULL)";
             stmt.execute(sql);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
+    /**
+     * Cleans up the test environment.
+     */
     @AfterEach
     public void tearDown() {
         try (Connection conn = DatabaseConfig.getDataSource().getConnection();
