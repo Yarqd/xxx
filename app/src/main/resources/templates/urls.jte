@@ -1,6 +1,6 @@
 @import java.util.List
-@import hexlet.code.model.Url
-@param List<Url> urls
+@import java.util.Map
+@param List<Map<String, String>> urls
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,9 +14,11 @@
 <div class="container mt-4">
     <h1>Список URL</h1>
     <ul class="list-group">
-        @for(Url url : urls)
+        @for(Map<String, String> url : urls)
             <li class="list-group-item">
-                <a href="/urls/${url.getId()}">${url.getName()}</a>
+                <a href="/urls/${url.get("id")}">${url.get("name")}</a>
+                <p>Дата последней проверки: ${url.get("lastCheckedAt")}</p>
+                <p>Статус-код: ${url.get("statusCode")}</p>
             </li>
         @endfor
     </ul>

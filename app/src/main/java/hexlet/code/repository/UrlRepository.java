@@ -101,4 +101,18 @@ public final class UrlRepository extends BaseRepository {
             }
         }
     }
+
+    public String getUrlById(long id) throws SQLException {
+        String sql = "SELECT name FROM urls WHERE id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("name");
+                }
+            }
+        }
+        return null;
+    }
 }

@@ -19,6 +19,8 @@ public class DatabaseConfig {
             config.setPassword(H2_PASSWORD);
         } else {
             System.out.println("Using JDBC_DATABASE_URL: " + dbUrl);
+            config.setUsername(System.getenv("DB_USER"));
+            config.setPassword(System.getenv("DB_PASSWORD"));
         }
 
         config.setJdbcUrl(dbUrl);

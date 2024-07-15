@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collections;
 import java.util.Map;
 
 public class App {
@@ -23,6 +22,12 @@ public class App {
     public static Javalin getApp() {
         Javalin app = Javalin.create(config -> {
             config.fileRenderer(new JavalinJte(createTemplateEngine()));
+            config.showJavalinBanner = false; // Отключаем баннер
+        });
+
+        app.before(ctx -> {
+            // Логирование запросов
+            LOGGER.info("Received request: {} {}", ctx.method(), ctx.url());
         });
 
         app.get("/", ctx -> {
@@ -39,6 +44,7 @@ public class App {
         app.post("/urls", UrlController::addUrl);
         app.get("/urls", UrlController::listUrls);
         app.get("/urls/{id}", UrlController::showUrl);
+        app.post("/urls/{id}/checks", UrlCheckController::checkUrl);
 
         return app;
     }
