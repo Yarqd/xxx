@@ -43,11 +43,13 @@ public class UrlCheckTest {
         mockWebServer.start();
 
         String mockUrl = mockWebServer.url("/").toString();
+        System.out.println("Mock URL: " + mockUrl);
 
         Javalin app = App.getApp();
 
         JavalinTest.test(app, (server, client) -> {
             // Step 1: Add URL
+            System.out.println("Step 1: Adding URL");
             given().baseUri(client.getOrigin())
                     .log().all() // Логируем запрос и ответ
                     .formParam("url", mockUrl)
@@ -58,6 +60,7 @@ public class UrlCheckTest {
                     .header("Location", "/urls");
 
             // Step 2: Check URL
+            System.out.println("Step 2: Checking URL");
             given().baseUri(client.getOrigin())
                     .config(config().redirect(redirectConfig().followRedirects(false)))
                     .log().all() // Логируем запрос и ответ
@@ -68,6 +71,7 @@ public class UrlCheckTest {
                     .header("Location", "/urls/1");
 
             // Step 3: Follow the redirect and check the content
+            System.out.println("Step 3: Following redirect and checking content");
             given().baseUri(client.getOrigin())
                     .log().all() // Логируем запрос и ответ
                     .get("/urls/1")
