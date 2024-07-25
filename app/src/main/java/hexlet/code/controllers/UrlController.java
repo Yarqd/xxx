@@ -1,18 +1,24 @@
-package hexlet.code;
+package hexlet.code.controllers;
 
+import hexlet.code.DatabaseConfig;
+import hexlet.code.dto.BasePage;
+import hexlet.code.dto.UrlCheckDto;
+import hexlet.code.dto.UrlDto;
 import hexlet.code.model.Url;
 import hexlet.code.model.UrlCheck;
-import hexlet.code.repository.UrlRepository;
 import hexlet.code.repository.UrlCheckRepository;
+import hexlet.code.repository.UrlRepository;
 import io.javalin.http.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
+
+import static io.javalin.rendering.template.TemplateUtil.model;
 
 public class UrlController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlController.class);
@@ -62,29 +68,28 @@ public class UrlController {
     public static void listUrls(Context ctx) {
         try {
             List<Url> urls = URL_REPOSITORY.findAll();
-            List<Map<String, String>> urlsWithChecks = urls.stream().map(url -> {
+            List<UrlDto> urlsWithChecks = urls.stream().map(url -> {
                 try {
                     UrlCheck latestCheck = URL_CHECK_REPOSITORY.findLatestByUrlId(url.getId());
-                    return Map.of(
-                            "id", String.valueOf(url.getId()),
-                            "name", url.getName(),
-                            "lastCheckedAt", latestCheck != null
-                                    ? DATE_FORMAT.format(latestCheck.getCreatedAt()) : "Не проверялось",
-                            "statusCode", latestCheck != null ? String.valueOf(latestCheck.getStatusCode()) : "N/A"
+                    return new UrlDto(
+                            url.getId(),
+                            url.getName(),
+                            latestCheck != null ? DATE_FORMAT.format(latestCheck.getCreatedAt()) : null,
+                            latestCheck != null ? latestCheck.getStatusCode() : null
                     );
                 } catch (SQLException e) {
                     LOGGER.error("Ошибка при получении проверки для URL", e);
-                    return Map.of(
-                            "id", String.valueOf(url.getId()),
-                            "name", url.getName(),
-                            "lastCheckedAt", "Ошибка",
-                            "statusCode", "Ошибка"
+                    return new UrlDto(
+                            url.getId(),
+                            url.getName(),
+                            null,
+                            null
                     );
                 }
             }).collect(Collectors.toList());
 
-            ctx.attribute("urls", urlsWithChecks);
-            ctx.render("urls.jte", Map.of("urls", urlsWithChecks));
+            BasePage page = new BasePage(ctx.sessionAttribute("flash"), ctx.sessionAttribute("flashType"));
+            ctx.render("urls/urls.jte", model("page", page, "urls", urlsWithChecks));
         } catch (SQLException e) {
             LOGGER.error("Ошибка при получении URL", e);
             ctx.sessionAttribute("flash", "Ошибка при получении URL: " + e.getMessage());
@@ -94,25 +99,34 @@ public class UrlController {
     }
 
     public static void showUrl(Context ctx) {
-        int id = Integer.parseInt(ctx.pathParam("id"));
+        long id = Long.parseLong(ctx.pathParam("id"));
         try {
             Url url = URL_REPOSITORY.findById(id);
             List<UrlCheck> checks = URL_CHECK_REPOSITORY.findByUrlId(id);
-            List<Map<String, String>> formattedChecks = checks.stream().map(check -> {
-                return Map.of(
-                        "id", String.valueOf(check.getId()),
-                        "statusCode", String.valueOf(check.getStatusCode()),
-                        "h1", check.getH1(),
-                        "title", check.getTitle(),
-                        "description", check.getDescription(),
-                        "createdAt", DATE_FORMAT.format(check.getCreatedAt())
-                );
-            }).collect(Collectors.toList());
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            List<UrlCheckDto> formattedChecks = checks.stream().map(check -> new UrlCheckDto(
+                    check.getId(),
+                    check.getStatusCode(),
+                    check.getTitle(),
+                    check.getH1(),
+                    check.getDescription(),
+                    check.getUrlId(),
+                    check.getCreatedAt().toLocalDateTime().format(formatter)
+            )).collect(Collectors.toList());
 
             if (url != null) {
-                ctx.attribute("url", url);
-                ctx.attribute("checks", formattedChecks);
-                ctx.render("url.jte", Map.of("url", url, "checks", formattedChecks));
+                UrlDto urlDto = new UrlDto(
+                        url.getId(),
+                        url.getName(),
+                        checks.isEmpty() ? "Не проверялось" : checks.get(0).getCreatedAt().
+                                toLocalDateTime().format(formatter),
+                        checks.isEmpty() ? null : checks.get(0).getStatusCode()
+                );
+
+                BasePage page = new BasePage(ctx.sessionAttribute("flash"),
+                        ctx.sessionAttribute("flashType"));
+                ctx.render("urls/show.jte", model("page", page,
+                        "url", urlDto, "checks", formattedChecks));
             } else {
                 ctx.sessionAttribute("flash", "URL не найден");
                 ctx.sessionAttribute("flashType", "error");

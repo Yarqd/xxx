@@ -2,7 +2,7 @@ package hexlet.code;
 
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
-import gg.jte.resolve.ResourceCodeResolver;
+import gg.jte.resolve.DirectoryCodeResolver;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
 import org.slf4j.Logger;
@@ -10,10 +10,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Map;
 
 public class App {
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
@@ -22,29 +22,14 @@ public class App {
     public static Javalin getApp() {
         Javalin app = Javalin.create(config -> {
             config.fileRenderer(new JavalinJte(createTemplateEngine()));
-            config.showJavalinBanner = false; // Отключаем баннер
+            config.showJavalinBanner = false;
         });
 
         app.before(ctx -> {
-            // Логирование запросов
             LOGGER.info("Received request: {} {}", ctx.method(), ctx.url());
         });
 
-        app.get("/", ctx -> {
-            String flashMessage = ctx.sessionAttribute("flash");
-            String flashType = ctx.sessionAttribute("flashType");
-            ctx.sessionAttribute("flash", null);
-            ctx.sessionAttribute("flashType", null);
-            ctx.render("index.jte", Map.of(
-                    "flash", flashMessage != null ? flashMessage : "",
-                    "flashType", flashType != null ? flashType : ""
-            ));
-        });
-
-        app.post("/urls", UrlController::addUrl);
-        app.get("/urls", UrlController::listUrls);
-        app.get("/urls/{id}", UrlController::showUrl);
-        app.post("/urls/{id}/checks", UrlCheckController::checkUrl);
+        Routes.configure(app);
 
         return app;
     }
@@ -78,8 +63,10 @@ public class App {
     }
 
     private static TemplateEngine createTemplateEngine() {
-        ClassLoader classLoader = App.class.getClassLoader();
-        ResourceCodeResolver codeResolver = new ResourceCodeResolver("templates", classLoader);
-        return TemplateEngine.create(codeResolver, ContentType.Html);
+        DirectoryCodeResolver codeResolver = new DirectoryCodeResolver(Paths.get("/app/src/main/jte"));
+        TemplateEngine templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
+        LOGGER.info("Creating TemplateEngine with base path: " + codeResolver.getRoot());
+        return templateEngine;
     }
+
 }

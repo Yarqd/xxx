@@ -1,22 +1,22 @@
-package hexlet.code.model;
+package hexlet.code.dto;
 
-import java.sql.Timestamp;
-
-public final class UrlCheck {
+public class UrlCheckDto {
     private long id;
     private int statusCode;
     private String title;
     private String h1;
     private String description;
     private long urlId;
-    private Timestamp createdAt;
+    private String createdAt;
 
-    public UrlCheck(long urlId, int statusCode, String title, String h1, String description, Timestamp createdAt) {
-        this.urlId = urlId;
+    public UrlCheckDto(long id, int statusCode, String title, String h1,
+                       String description, long urlId, String createdAt) {
+        this.id = id;
         this.statusCode = statusCode;
         this.title = title;
         this.h1 = h1;
         this.description = description;
+        this.urlId = urlId;
         this.createdAt = createdAt;
     }
 
@@ -68,11 +68,11 @@ public final class UrlCheck {
         this.urlId = urlId;
     }
 
-    public Timestamp getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 }
