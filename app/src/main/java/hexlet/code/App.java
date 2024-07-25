@@ -41,7 +41,7 @@ public class App {
         LOGGER.info("Application started on port " + getPort());
     }
 
-    private static void initializeDatabase() {
+    static void initializeDatabase() {
         try (Connection conn = DATA_SOURCE.getConnection();
              Statement stmt = conn.createStatement();
              var resourceStream = App.class.getResourceAsStream("/schema.sql")) {
@@ -63,7 +63,7 @@ public class App {
     }
 
     private static TemplateEngine createTemplateEngine() {
-        DirectoryCodeResolver codeResolver = new DirectoryCodeResolver(Paths.get("/app/src/main/jte"));
+        DirectoryCodeResolver codeResolver = new DirectoryCodeResolver(Paths.get("src/main/jte")); // Измените путь на относительный
         TemplateEngine templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
         LOGGER.info("Creating TemplateEngine with base path: " + codeResolver.getRoot());
         return templateEngine;
