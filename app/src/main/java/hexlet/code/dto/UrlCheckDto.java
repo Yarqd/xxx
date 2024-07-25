@@ -1,6 +1,13 @@
 package hexlet.code.dto;
 
-public class UrlCheckDto {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data // Генерирует геттеры, сеттеры, equals, hashCode и toString
+@AllArgsConstructor // Генерирует конструктор с параметрами для всех полей
+@NoArgsConstructor // Генерирует пустой конструктор
+public final class UrlCheckDto { // Сделаем класс final, чтобы он не мог быть наследован
     private long id;
     private int statusCode;
     private String title;
@@ -8,71 +15,4 @@ public class UrlCheckDto {
     private String description;
     private long urlId;
     private String createdAt;
-
-    public UrlCheckDto(long id, int statusCode, String title, String h1,
-                       String description, long urlId, String createdAt) {
-        this.id = id;
-        this.statusCode = statusCode;
-        this.title = title;
-        this.h1 = h1;
-        this.description = description;
-        this.urlId = urlId;
-        this.createdAt = createdAt;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public int getStatusCode() {
-        return statusCode;
-    }
-
-    public void setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getH1() {
-        return h1;
-    }
-
-    public void setH1(String h1) {
-        this.h1 = h1;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public long getUrlId() {
-        return urlId;
-    }
-
-    public void setUrlId(long urlId) {
-        this.urlId = urlId;
-    }
-
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
-    }
 }

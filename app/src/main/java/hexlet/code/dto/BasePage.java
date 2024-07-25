@@ -1,27 +1,13 @@
 package hexlet.code.dto;
 
-public class BasePage {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data // Генерирует геттеры, сеттеры, equals, hashCode и toString
+@AllArgsConstructor // Генерирует конструктор с параметрами для всех полей
+@NoArgsConstructor // Генерирует пустой конструктор
+public final class BasePage { // Сделаем класс final, чтобы он не мог быть наследован
     private String flash;
     private String flashType;
-
-    public BasePage(String flash, String flashType) {
-        this.flash = flash;
-        this.flashType = flashType;
-    }
-
-    public String getFlash() {
-        return flash;
-    }
-
-    public void setFlash(String flash) {
-        this.flash = flash;
-    }
-
-    public String getFlashType() {
-        return flashType;
-    }
-
-    public void setFlashType(String flashType) {
-        this.flashType = flashType;
-    }
 }

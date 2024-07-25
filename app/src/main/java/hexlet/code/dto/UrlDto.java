@@ -1,47 +1,15 @@
 package hexlet.code.dto;
 
-public class UrlDto {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data // Генерирует геттеры, сеттеры, equals, hashCode и toString
+@AllArgsConstructor // Генерирует конструктор с параметрами для всех полей
+@NoArgsConstructor // Генерирует пустой конструктор
+public final class UrlDto { // Сделаем класс final, чтобы он не мог быть наследован
     private long id;
     private String name;
     private String lastCheckedAt;
     private Integer statusCode;
-
-    public UrlDto(long id, String name, String lastCheckedAt, Integer statusCode) {
-        this.id = id;
-        this.name = name;
-        this.lastCheckedAt = lastCheckedAt;
-        this.statusCode = statusCode;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getLastCheckedAt() {
-        return lastCheckedAt;
-    }
-
-    public void setLastCheckedAt(String lastCheckedAt) {
-        this.lastCheckedAt = lastCheckedAt;
-    }
-
-    public Integer getStatusCode() {
-        return statusCode;
-    }
-
-    public void setStatusCode(Integer statusCode) {
-        this.statusCode = statusCode;
-    }
 }
