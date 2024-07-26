@@ -34,10 +34,12 @@ public final class UrlCheckController {
             // Извлекаем необходимые данные из HTML-документа
             String title = doc.title();
             String h1 = doc.selectFirst("h1") != null ? doc.selectFirst("h1").text() : "";
-            String description = doc.selectFirst("meta[name=description]") != null ? doc.selectFirst("meta[name=description]").attr("content") : "";
+            String description = doc.selectFirst("meta[name=description]") != null ? doc.selectFirst
+                    ("meta[name=description]").attr("content") : "";
 
             // Создаем объект UrlCheck с извлеченными данными
-            UrlCheck urlCheck = new UrlCheck(urlId, 200, title, h1, description, new Timestamp(System.currentTimeMillis()));
+            UrlCheck urlCheck = new UrlCheck(urlId, 200, title, h1, description, new Timestamp
+                    (System.currentTimeMillis()));
             urlCheckRepository.save(urlCheck);
 
             UrlCheckDto urlCheckDto = new UrlCheckDto(

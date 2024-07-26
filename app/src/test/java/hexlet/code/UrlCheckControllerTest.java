@@ -34,7 +34,8 @@ public class UrlCheckControllerTest {
     public static void beforeAll() throws IOException {
         mockServer = new MockWebServer();
         baseUrl = mockServer.url("/").toString();
-        MockResponse mockResponse = new MockResponse().setBody("<html><head><title>Test Title</title></head><body><h1>Test Page Analyzer</h1></body></html>");
+        MockResponse mockResponse = new MockResponse().setBody("<html><head><title>Test Title</title></head>"
+                + "<body><h1>Test Page Analyzer</h1></body></html>");
         mockServer.enqueue(mockResponse);
     }
 

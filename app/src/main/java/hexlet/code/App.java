@@ -63,7 +63,7 @@ public class App {
     }
 
     private static TemplateEngine createTemplateEngine() {
-        DirectoryCodeResolver codeResolver = new DirectoryCodeResolver(Paths.get("src/main/jte")); // Измените путь на относительный
+        DirectoryCodeResolver codeResolver = new DirectoryCodeResolver(Paths.get("src/main/jte"));
         TemplateEngine templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
         LOGGER.info("Creating TemplateEngine with base path: " + codeResolver.getRoot());
         return templateEngine;
