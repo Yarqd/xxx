@@ -18,7 +18,8 @@ public final class UrlCheckController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlCheckController.class);
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private static final UrlCheckRepository URL_CHECK_REPOSITORY = new UrlCheckRepository(DatabaseConfig.getDataSource());
+    private static final UrlCheckRepository URL_CHECK_REPOSITORY = new UrlCheckRepository(
+            DatabaseConfig.getDataSource());
     private static final UrlRepository URL_REPOSITORY = new UrlRepository(DatabaseConfig.getDataSource());
 
     public static void checkUrl(Context ctx) {
