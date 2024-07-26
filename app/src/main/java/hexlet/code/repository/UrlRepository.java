@@ -29,10 +29,17 @@ public final class UrlRepository extends BaseRepository {
     public void save(Url url) throws SQLException {
         String sql = "INSERT INTO urls (name, created_at) VALUES (?, ?)";
         try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, url.getName());
             stmt.setTimestamp(2, url.getCreatedAt());
             stmt.executeUpdate();
+
+            // Получение сгенерированного id
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    url.setId(generatedKeys.getLong(1));
+                }
+            }
         }
     }
 

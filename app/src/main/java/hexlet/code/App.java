@@ -69,4 +69,8 @@ public class App {
         return templateEngine;
     }
 
+    public static DataSource getDataSource() {
+        return DATA_SOURCE;
+    }
+
 }
