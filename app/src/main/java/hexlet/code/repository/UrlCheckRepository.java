@@ -33,8 +33,8 @@ public final class UrlCheckRepository extends BaseRepository {
 
     public List<UrlCheck> findByUrlId(long urlId) throws SQLException {
         List<UrlCheck> urlChecks = new ArrayList<>();
-        String sql = "SELECT id, status_code, title, h1, description, url_id, created_at " +
-                "FROM url_checks WHERE url_id = ?";
+        String sql = "SELECT id, status_code, title, h1, description, url_id, created_at "
+                + "FROM url_checks WHERE url_id = ?";
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, urlId);

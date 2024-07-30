@@ -5,7 +5,7 @@ import lombok.Data;
 import java.sql.Timestamp;
 
 /**
- * Модель URL
+ * Модель URL.
  */
 @Data
 public final class Url {
