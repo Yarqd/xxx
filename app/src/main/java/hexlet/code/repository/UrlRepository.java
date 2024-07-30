@@ -34,7 +34,6 @@ public final class UrlRepository extends BaseRepository {
             stmt.setTimestamp(2, url.getCreatedAt());
             stmt.executeUpdate();
 
-            // Получение сгенерированного id
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     url.setId(generatedKeys.getLong(1));

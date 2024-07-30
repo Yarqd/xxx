@@ -18,36 +18,22 @@ public final class UrlCheckController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlCheckController.class);
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private static final UrlCheckRepository URL_CHECK_REPOSITORY = new UrlCheckRepository(
-            DatabaseConfig.getDataSource());
+    private static final UrlCheckRepository URL_CHECK_REPOSITORY = new UrlCheckRepository(DatabaseConfig.getDataSource());
     private static final UrlRepository URL_REPOSITORY = new UrlRepository(DatabaseConfig.getDataSource());
 
     public static void checkUrl(Context ctx) {
         long urlId = ctx.pathParamAsClass("id", Long.class).get();
 
         try {
-            // Получаем URL из базы данных
             String url = URL_REPOSITORY.getUrlById(urlId);
 
-            // Отправляем HTTP-запрос к сайту и получаем HTML-документ
             Document doc = Jsoup.connect(url).get();
 
-            // Извлекаем необходимые данные из HTML-документа
             String title = doc.title();
             String h1 = doc.selectFirst("h1") != null ? doc.selectFirst("h1").text() : "";
-            String description = doc.selectFirst("meta[name=description]") != null
-                    ? doc.selectFirst("meta[name=description]").attr("content")
-                    : "";
+            String description = doc.selectFirst("meta[name=description]") != null ? doc.selectFirst("meta[name=description]").attr("content") : "";
 
-            // Создаем объект UrlCheck с извлеченными данными
-            UrlCheck urlCheck = new UrlCheck(
-                    urlId,
-                    200,
-                    title,
-                    h1,
-                    description,
-                    new Timestamp(System.currentTimeMillis())
-            );
+            UrlCheck urlCheck = new UrlCheck(0, 200, title, h1, description, urlId, new Timestamp(System.currentTimeMillis()));
             URL_CHECK_REPOSITORY.save(urlCheck);
 
             UrlCheckDto urlCheckDto = new UrlCheckDto(

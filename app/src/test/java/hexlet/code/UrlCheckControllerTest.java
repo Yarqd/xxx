@@ -32,6 +32,7 @@ public class UrlCheckControllerTest {
 
     @BeforeAll
     public static void beforeAll() throws IOException {
+        app = App.getApp();
         mockServer = new MockWebServer();
         baseUrl = mockServer.url("/").toString();
         MockResponse mockResponse = new MockResponse().setBody("<html><head><title>Test Title</title></head>"
@@ -41,7 +42,6 @@ public class UrlCheckControllerTest {
 
     @BeforeEach
     public final void setUp() throws SQLException {
-        app = App.getApp();
         App.initializeDatabase();
         DataSource dataSource = DatabaseConfig.getDataSource();
         urlRepository = new UrlRepository(dataSource);
@@ -51,6 +51,7 @@ public class UrlCheckControllerTest {
     @AfterAll
     public static void afterAll() throws IOException {
         mockServer.shutdown();
+        app.stop();
     }
 
     @Test

@@ -20,7 +20,7 @@ public final class Routes {
         app.post("/", ctx -> {
             ctx.sessionAttribute("flash", null);
             ctx.sessionAttribute("flashType", null);
-            ctx.status(204); // No Content
+            ctx.status(204);
         });
 
         app.post("/urls", UrlController::addUrl);
