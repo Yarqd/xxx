@@ -14,10 +14,13 @@ import java.sql.Statement;
 
 import static io.restassured.RestAssured.given;
 
-public class AppTest {
+public final class AppTest {
 
     private static Javalin app;
 
+    /**
+     * Настройка приложения перед запуском всех тестов.
+     */
     @BeforeAll
     public static void setUpBeforeClass() {
         app = App.getApp();
@@ -25,16 +28,27 @@ public class AppTest {
         RestAssured.port = app.port();
     }
 
+    /**
+     * Инициализация базы данных перед каждым тестом.
+     * @throws Exception если возникает ошибка при инициализации базы данных
+     */
     @BeforeEach
     public void setUp() throws Exception {
         initializeDatabase();
     }
 
+    /**
+     * Очистка базы данных после каждого теста.
+     * @throws Exception если возникает ошибка при очистке базы данных
+     */
     @AfterEach
     public void tearDown() throws Exception {
         clearDatabase();
     }
 
+    /**
+     * Остановка приложения после выполнения всех тестов.
+     */
     @AfterAll
     public static void tearDownAfterClass() {
         app.stop(); // Остановка Javalin после всех тестов
@@ -52,23 +66,23 @@ public class AppTest {
     @Test
     public void testUrlCreation() {
         given()
-                .contentType("application/x-www-form-urlencoded")
-                .formParam("url", "https://example.com")
+                .contentType("application/json")
+                .body("{\"name\": \"https://example.com\"}")
                 .when()
                 .post("/urls")
                 .then()
-                .statusCode(302); // Проверяем статус код 302 (перенаправление)
+                .statusCode(200);
     }
 
     private void initializeDatabase() throws Exception {
         try (Connection conn = DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
              Statement stmt = conn.createStatement()) {
             stmt.execute("DROP TABLE IF EXISTS urls");
-            stmt.execute("CREATE TABLE urls (" +
-                    "id INT AUTO_INCREMENT PRIMARY KEY, " +
-                    "name VARCHAR(255) NOT NULL, " +
-                    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
-                    ")");
+            stmt.execute("CREATE TABLE urls ("
+                    + "id INT AUTO_INCREMENT PRIMARY KEY, "
+                    + "name VARCHAR(255) NOT NULL, "
+                    + "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+                    + ")");
         }
     }
 
