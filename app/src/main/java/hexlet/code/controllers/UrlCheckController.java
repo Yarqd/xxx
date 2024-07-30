@@ -32,8 +32,8 @@ public final class UrlCheckController {
 
             String title = doc.title();
             String h1 = doc.selectFirst("h1") != null ? doc.selectFirst("h1").text() : "";
-            String description = doc.selectFirst("meta[name=description]") != null ? doc.selectFirst
-                    ("meta[name=description]").attr("content") : "";
+            String description = doc.selectFirst("meta[name=description]") != null ? doc.selectFirst(
+                    "meta[name=description]").attr("content") : "";
 
             UrlCheck urlCheck = new UrlCheck(0, 200, title, h1, description,
                     urlId, new Timestamp(System.currentTimeMillis()));
