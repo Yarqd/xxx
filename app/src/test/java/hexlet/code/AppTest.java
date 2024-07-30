@@ -24,7 +24,7 @@ public final class AppTest {
     @BeforeAll
     public static void setUpBeforeClass() {
         app = App.getApp();
-        app.start(0); // Запуск Javalin на случайном порту
+        app.start(0);
         RestAssured.port = app.port();
     }
 
@@ -51,7 +51,7 @@ public final class AppTest {
      */
     @AfterAll
     public static void tearDownAfterClass() {
-        app.stop(); // Остановка Javalin после всех тестов
+        app.stop();
     }
 
     @Test
@@ -66,12 +66,11 @@ public final class AppTest {
     @Test
     public void testUrlCreation() {
         given()
-                .contentType("application/json")
-                .body("{\"name\": \"https://example.com\"}")
+                .formParam("url", "https://example.com")
                 .when()
                 .post("/urls")
                 .then()
-                .statusCode(200);
+                .statusCode(302);
     }
 
     private void initializeDatabase() throws Exception {

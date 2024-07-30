@@ -68,7 +68,6 @@ public final class UrlCheckTest {
                 .post("/urls")
                 .then()
                 .statusCode(302);
-
         given()
                 .when()
                 .post("/urls/1/checks")
