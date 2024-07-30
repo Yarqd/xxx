@@ -38,7 +38,7 @@ public class App {
         initializeDatabase();
         Javalin app = getApp();
         app.start(getPort());
-        LOGGER.info("Application started on port " + getPort());
+        LOGGER.info("Application started on port {}", getPort());
     }
 
     static void initializeDatabase() {
@@ -65,12 +65,11 @@ public class App {
     private static TemplateEngine createTemplateEngine() {
         DirectoryCodeResolver codeResolver = new DirectoryCodeResolver(Paths.get("src/main/jte"));
         TemplateEngine templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
-        LOGGER.info("Creating TemplateEngine with base path: " + codeResolver.getRoot());
+        LOGGER.info("Creating TemplateEngine with base path: {}", codeResolver.getRoot());
         return templateEngine;
     }
 
     public static DataSource getDataSource() {
         return DATA_SOURCE;
     }
-
 }

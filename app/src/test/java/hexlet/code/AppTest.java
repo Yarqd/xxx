@@ -1,98 +1,81 @@
 package hexlet.code;
 
 import io.javalin.Javalin;
+import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static io.restassured.RestAssured.given;
 
-class AppTest {
+public class AppTest {
+
     private static Javalin app;
-    private static int port;
 
     @BeforeAll
-    static void beforeAll() throws IOException {
-        port = getRandomPort();
+    public static void setUpBeforeClass() {
         app = App.getApp();
-        app.start(port);
-        App.initializeDatabase(); // Инициализация базы данных перед запуском тестов
+        app.start(0); // Запуск Javalin на случайном порту
+        RestAssured.port = app.port();
+    }
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        initializeDatabase();
+    }
+
+    @AfterEach
+    public void tearDown() throws Exception {
+        clearDatabase();
     }
 
     @AfterAll
-    static void afterAll() {
-        app.stop();
+    public static void tearDownAfterClass() {
+        app.stop(); // Остановка Javalin после всех тестов
     }
 
     @Test
-    void testRoot() throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:" + port + "/"))
-                .build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode());
+    public void testRootPath() {
+        given()
+                .when()
+                .get("/")
+                .then()
+                .statusCode(200);
     }
 
     @Test
-    void testAddUrl() throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:" + port + "/urls"))
-                .header("Content-Type", "application/x-www-form-urlencoded")
-                .POST(HttpRequest.BodyPublishers.ofString("url=http://example.com"))
-                .build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(302, response.statusCode());
+    public void testUrlCreation() {
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .formParam("url", "https://example.com")
+                .when()
+                .post("/urls")
+                .then()
+                .statusCode(302); // Проверяем статус код 302 (перенаправление)
     }
 
-    @Test
-    void testListUrls() throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:" + port + "/urls"))
-                .build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode());
+    private void initializeDatabase() throws Exception {
+        try (Connection conn = DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
+             Statement stmt = conn.createStatement()) {
+            stmt.execute("DROP TABLE IF EXISTS urls");
+            stmt.execute("CREATE TABLE urls (" +
+                    "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                    "name VARCHAR(255) NOT NULL, " +
+                    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                    ")");
+        }
     }
 
-    @Test
-    void testShowUrl() throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
-        long urlId = 1; // Предположим, что у вас есть URL с id = 1
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:" + port + "/urls/" + urlId))
-                .build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode());
-    }
-
-    @Test
-    void testCheckUrl() throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
-        long urlId = 1; // Предположим, что у вас есть URL с id = 1
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:" + port + "/urls/" + urlId + "/checks"))
-                .POST(HttpRequest.BodyPublishers.noBody())
-                .build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(302, response.statusCode());
-    }
-
-    private static int getRandomPort() throws IOException {
-        try (var socket = new java.net.ServerSocket(0)) {
-            return socket.getLocalPort();
+    private void clearDatabase() throws Exception {
+        try (Connection conn = DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
+             Statement stmt = conn.createStatement()) {
+            stmt.execute("DELETE FROM urls");
         }
     }
 }

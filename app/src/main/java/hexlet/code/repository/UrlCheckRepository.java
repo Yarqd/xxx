@@ -18,7 +18,7 @@ public final class UrlCheckRepository extends BaseRepository {
 
     public void save(UrlCheck urlCheck) throws SQLException {
         String sql = "INSERT INTO url_checks (status_code, title, h1, description, url_id, created_at) "
-                + "VALUES (?, ?, ?, ?, ?, ?)";
+                + "VALUES (?, ?, ?, ?, ?, DEFAULT)";
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, urlCheck.getStatusCode());
@@ -26,7 +26,6 @@ public final class UrlCheckRepository extends BaseRepository {
             stmt.setString(3, urlCheck.getH1());
             stmt.setString(4, urlCheck.getDescription());
             stmt.setLong(5, urlCheck.getUrlId());
-            stmt.setTimestamp(6, urlCheck.getCreatedAt());
             stmt.executeUpdate();
         }
     }

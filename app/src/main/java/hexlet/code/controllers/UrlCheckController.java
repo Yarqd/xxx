@@ -1,7 +1,6 @@
 package hexlet.code.controllers;
 
 import hexlet.code.DatabaseConfig;
-import hexlet.code.dto.UrlCheckDto;
 import hexlet.code.model.UrlCheck;
 import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
@@ -11,53 +10,44 @@ import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
+import java.io.IOException;
+import java.sql.SQLException;
 
-public final class UrlCheckController {
+public class UrlCheckController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlCheckController.class);
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private static final UrlCheckRepository URL_CHECK_REPOSITORY = new UrlCheckRepository(DatabaseConfig.
-            getDataSource());
     private static final UrlRepository URL_REPOSITORY = new UrlRepository(DatabaseConfig.getDataSource());
+    private static final UrlCheckRepository URL_CHECK_REPOSITORY = new UrlCheckRepository(DatabaseConfig.getDataSource());
 
     public static void checkUrl(Context ctx) {
         long urlId = ctx.pathParamAsClass("id", Long.class).get();
+        LOGGER.info("Checking URL with id: {}", urlId);
 
         try {
-            String url = URL_REPOSITORY.getUrlById(urlId);
+            var url = URL_REPOSITORY.findById(urlId);
+            if (url == null) {
+                LOGGER.error("URL not found for id: {}", urlId);
+                ctx.status(404);
+                return;
+            }
 
-            Document doc = Jsoup.connect(url).get();
+            Document doc = Jsoup.connect(url.getName()).timeout(10_000).get();
+            UrlCheck urlCheck = new UrlCheck();
+            urlCheck.setUrlId(urlId);
+            urlCheck.setStatusCode(200);
+            urlCheck.setTitle(doc.title());
+            urlCheck.setH1(doc.select("h1").text());
+            urlCheck.setDescription(doc.select("meta[name=description]").attr("content"));
 
-            String title = doc.title();
-            String h1 = doc.selectFirst("h1") != null ? doc.selectFirst("h1").text() : "";
-            String description = doc.selectFirst("meta[name=description]") != null ? doc.selectFirst(
-                    "meta[name=description]").attr("content") : "";
-
-            UrlCheck urlCheck = new UrlCheck(0, 200, title, h1, description,
-                    urlId, new Timestamp(System.currentTimeMillis()));
             URL_CHECK_REPOSITORY.save(urlCheck);
-
-            UrlCheckDto urlCheckDto = new UrlCheckDto(
-                    urlCheck.getId(),
-                    urlCheck.getStatusCode(),
-                    urlCheck.getTitle(),
-                    urlCheck.getH1(),
-                    urlCheck.getDescription(),
-                    urlCheck.getUrlId(),
-                    DATE_FORMAT.format(urlCheck.getCreatedAt())
-            );
-
-            ctx.sessionAttribute("flash", "Страница успешно проверена");
-            ctx.sessionAttribute("flashType", "success");
-
-        } catch (Exception e) {
-            LOGGER.error("Error during URL check", e);
-            ctx.sessionAttribute("flash", "Ошибка при проверке URL");
-            ctx.sessionAttribute("flashType", "danger");
+            LOGGER.info("URL check saved for id: {}", urlId);
+            ctx.redirect("/urls/" + urlId);
+        } catch (IOException e) {
+            LOGGER.error("Error during URL check for id: {}: {}", urlId, e.getMessage());
+            ctx.status(500);
+        } catch (SQLException e) {
+            LOGGER.error("SQL Error during URL check for id: {}: SQLState: {}, ErrorCode: {}, Message: {}", urlId, e.getSQLState(), e.getErrorCode(), e.getMessage());
+            ctx.status(500);
         }
-
-        ctx.redirect("/urls/" + urlId);
     }
 }
