@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,9 +21,12 @@ import static io.javalin.rendering.template.TemplateUtil.model;
 
 public class UrlController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlController.class);
-    private static final UrlRepository URL_REPOSITORY = new UrlRepository(DatabaseConfig.getDataSource());
-    private static final UrlCheckRepository URL_CHECK_REPOSITORY = new UrlCheckRepository(DatabaseConfig.getDataSource());
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final UrlRepository URL_REPOSITORY =
+            new UrlRepository(DatabaseConfig.getDataSource());
+    private static final UrlCheckRepository URL_CHECK_REPOSITORY =
+            new UrlCheckRepository(DatabaseConfig.getDataSource());
+    private static final DateTimeFormatter DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static void addUrl(Context ctx) {
         String inputUrl = ctx.formParam("url");
@@ -37,7 +39,8 @@ public class UrlController {
 
         try {
             java.net.URL url = new java.net.URL(inputUrl);
-            String domainUrl = url.getProtocol() + "://" + url.getHost() + (url.getPort() == -1 ? "" : ":" + url.getPort());
+            String domainUrl = url.getProtocol() + "://" + url.getHost()
+                    + (url.getPort() == -1 ? "" : ":" + url.getPort());
 
             try {
                 if (URL_REPOSITORY.existsByName(domainUrl)) {
@@ -56,7 +59,8 @@ public class UrlController {
                 ctx.sessionAttribute("flashType", "success");
                 ctx.redirect("/urls");
             } catch (SQLException e) {
-                LOGGER.error("Ошибка при добавлении URL: SQLState: {}, ErrorCode: {}, Message: {}", e.getSQLState(), e.getErrorCode(), e.getMessage());
+                LOGGER.error("Ошибка при добавлении URL: SQLState: {}, ErrorCode: {}, Message: {}",
+                        e.getSQLState(), e.getErrorCode(), e.getMessage());
                 ctx.sessionAttribute("flash", "Ошибка при добавлении URL: " + e.getMessage());
                 ctx.sessionAttribute("flashType", "error");
                 ctx.redirect("/urls");
@@ -78,7 +82,9 @@ public class UrlController {
                     return new UrlDto(
                             url.getId(),
                             url.getName(),
-                            latestCheck != null ? DATE_FORMATTER.format(latestCheck.getCreatedAt().toLocalDateTime()) : null,
+                            latestCheck != null
+                                    ? DATE_FORMATTER.format(latestCheck.getCreatedAt().toLocalDateTime())
+                                    : null,
                             latestCheck != null ? latestCheck.getStatusCode() : null
                     );
                 } catch (SQLException e) {
@@ -92,7 +98,8 @@ public class UrlController {
                 }
             }).collect(Collectors.toList());
 
-            BasePage page = new BasePage(ctx.sessionAttribute("flash"), ctx.sessionAttribute("flashType"));
+            BasePage page = new BasePage(ctx.sessionAttribute("flash"),
+                    ctx.sessionAttribute("flashType"));
             ctx.render("urls/urls.jte", model("page", page, "urls", urlsWithChecks));
             clearFlash(ctx);
         } catch (SQLException e) {
@@ -129,7 +136,8 @@ public class UrlController {
             UrlDto urlDto = new UrlDto(
                     url.getId(),
                     url.getName(),
-                    checks.isEmpty() ? "Не проверялось" : checks.get(0).getCreatedAt().toLocalDateTime().format(formatter),
+                    checks.isEmpty() ? "Не проверялось" : checks.get(0).getCreatedAt()
+                            .toLocalDateTime().format(formatter),
                     checks.isEmpty() ? null : checks.get(0).getStatusCode()
             );
 
@@ -137,7 +145,8 @@ public class UrlController {
             ctx.render("urls/show.jte", model("page", page, "url", urlDto, "checks", formattedChecks));
             clearFlash(ctx);
         } catch (SQLException e) {
-            LOGGER.error("Ошибка при получении URL: SQLState: {}, ErrorCode: {}, Message: {}", e.getSQLState(), e.getErrorCode(), e.getMessage());
+            LOGGER.error("Ошибка при получении URL: SQLState: {}, ErrorCode: {}, Message: {}",
+                    e.getSQLState(), e.getErrorCode(), e.getMessage());
             ctx.sessionAttribute("flash", "Ошибка при получении URL: " + e.getMessage());
             ctx.sessionAttribute("flashType", "error");
             ctx.redirect("/urls");
