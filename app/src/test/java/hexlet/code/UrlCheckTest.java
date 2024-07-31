@@ -14,7 +14,7 @@ import java.sql.Statement;
 
 import static io.restassured.RestAssured.given;
 
-public class UrlCheckTest {
+public final class UrlCheckTest {
 
     private static Javalin app;
 
