@@ -41,6 +41,14 @@ public class App {
         LOGGER.info("Application started on port {}", getPort());
     }
 
+    private static DataSource initializeDataSource() {
+        if ("true".equals(System.getenv("TEST_ENV"))) {
+            return DatabaseConfig.getTestDataSource();
+        } else {
+            return DatabaseConfig.getDataSource();
+        }
+    }
+
     static void initializeDatabase() {
         try (Connection conn = DATA_SOURCE.getConnection();
              Statement stmt = conn.createStatement();
@@ -67,14 +75,6 @@ public class App {
         TemplateEngine templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
         LOGGER.info("Creating TemplateEngine with base path: {}", codeResolver.getRoot());
         return templateEngine;
-    }
-
-    private static DataSource initializeDataSource() {
-        if ("true".equals(System.getenv("TEST_ENV"))) {
-            return DatabaseConfig.getTestDataSource();
-        } else {
-            return DatabaseConfig.getDataSource();
-        }
     }
 
     public static DataSource getDataSource() {
