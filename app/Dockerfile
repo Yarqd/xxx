@@ -20,4 +20,6 @@ RUN gradle shadowJar
 
 EXPOSE 8080
 
+ENV TEST_ENV=true
+
 CMD ["java", "-jar", "build/libs/app-1.0-SNAPSHOT.jar"]
