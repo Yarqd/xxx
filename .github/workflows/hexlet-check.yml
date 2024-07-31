@@ -1,4 +1,4 @@
-name: Java CI
+name: hexlet-check
 
 on: [push, pull_request]
 
