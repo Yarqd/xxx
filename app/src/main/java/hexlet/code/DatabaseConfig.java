@@ -2,6 +2,7 @@ package hexlet.code;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+
 import javax.sql.DataSource;
 
 public class DatabaseConfig {
@@ -24,6 +25,15 @@ public class DatabaseConfig {
         }
 
         config.setJdbcUrl(dbUrl);
+        return new HikariDataSource(config);
+    }
+
+    public static DataSource getTestDataSource() {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(H2_URL);
+        config.setDriverClassName("org.h2.Driver");
+        config.setUsername(H2_USERNAME);
+        config.setPassword(H2_PASSWORD);
         return new HikariDataSource(config);
     }
 }

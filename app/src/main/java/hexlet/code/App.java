@@ -17,7 +17,7 @@ import java.sql.Statement;
 
 public class App {
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
-    private static final DataSource DATA_SOURCE = DatabaseConfig.getDataSource();
+    private static final DataSource DATA_SOURCE = initializeDataSource();
 
     public static Javalin getApp() {
         Javalin app = Javalin.create(config -> {
@@ -67,6 +67,14 @@ public class App {
         TemplateEngine templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
         LOGGER.info("Creating TemplateEngine with base path: {}", codeResolver.getRoot());
         return templateEngine;
+    }
+
+    private static DataSource initializeDataSource() {
+        if ("true".equals(System.getenv("TEST_ENV"))) {
+            return DatabaseConfig.getTestDataSource();
+        } else {
+            return DatabaseConfig.getDataSource();
+        }
     }
 
     public static DataSource getDataSource() {
