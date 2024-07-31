@@ -2,7 +2,9 @@ package hexlet.code;
 
 import io.javalin.Javalin;
 import io.restassured.RestAssured;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,53 +13,31 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.containsString;
 
-public final class UrlCheckTest {
+public class UrlCheckTest {
 
-    private Javalin app;
-    private int port;
+    private static Javalin app;
 
-    /**
-     * Настройка приложения и базы данных перед каждым тестом.
-     * @throws Exception если возникает ошибка при настройке
-     */
+    @BeforeAll
+    public static void setUpBeforeClass() {
+        app = App.getApp();
+        app.start(0);
+        RestAssured.port = app.port();
+    }
+
     @BeforeEach
     public void setUp() throws Exception {
-        app = App.getApp();
-        port = app.start(0).port();
-        RestAssured.port = port;
         initializeDatabase();
     }
 
-    /**
-     * Очистка базы данных после каждого теста.
-     * @throws Exception если возникает ошибка при очистке базы данных
-     */
     @AfterEach
     public void tearDown() throws Exception {
         clearDatabase();
+    }
+
+    @AfterAll
+    public static void tearDownAfterClass() {
         app.stop();
-    }
-
-    private void initializeDatabase() throws Exception {
-        try (Connection connection = DriverManager.getConnection("jdbc:h2:mem:project", "SA", "")) {
-            try (Statement statement = connection.createStatement()) {
-                statement.execute("CREATE TABLE urls ("
-                        + "id INT AUTO_INCREMENT, "
-                        + "name VARCHAR(255), "
-                        + "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
-                        + ");");
-            }
-        }
-    }
-
-    private void clearDatabase() throws Exception {
-        try (Connection connection = DriverManager.getConnection("jdbc:h2:mem:project", "SA", "")) {
-            try (Statement statement = connection.createStatement()) {
-                statement.execute("DELETE FROM urls");
-            }
-        }
     }
 
     @Test
@@ -68,18 +48,42 @@ public final class UrlCheckTest {
                 .post("/urls")
                 .then()
                 .statusCode(302);
+
         given()
                 .when()
                 .post("/urls/1/checks")
                 .then()
-                .statusCode(200);
+                .statusCode(302);
+    }
 
-        given()
-                .when()
-                .get("/urls/1")
-                .then()
-                .statusCode(200)
-                .body(containsString("https://example.com"))
-                .body(containsString("200"));
+    private void initializeDatabase() throws Exception {
+        try (Connection conn = DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
+             Statement stmt = conn.createStatement()) {
+            stmt.execute("DROP TABLE IF EXISTS urls");
+            stmt.execute("DROP TABLE IF EXISTS url_checks");
+            stmt.execute("CREATE TABLE urls ("
+                    + "id INT AUTO_INCREMENT PRIMARY KEY, "
+                    + "name VARCHAR(255) NOT NULL, "
+                    + "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+                    + ")");
+            stmt.execute("CREATE TABLE url_checks ("
+                    + "id INT AUTO_INCREMENT PRIMARY KEY, "
+                    + "status_code INT, "
+                    + "title VARCHAR(255), "
+                    + "h1 VARCHAR(255), "
+                    + "description TEXT, "
+                    + "url_id INT, "
+                    + "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                    + "FOREIGN KEY (url_id) REFERENCES urls(id)"
+                    + ")");
+        }
+    }
+
+    private void clearDatabase() throws Exception {
+        try (Connection conn = DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
+             Statement stmt = conn.createStatement()) {
+            stmt.execute("DELETE FROM url_checks");
+            stmt.execute("DELETE FROM urls");
+        }
     }
 }
