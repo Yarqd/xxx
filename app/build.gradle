@@ -1,9 +1,9 @@
 plugins {
     id 'java'
+    id 'jacoco'
     id 'checkstyle'
     id 'application'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
-    id 'jacoco'
 }
 
 group = 'hexlet.code'
@@ -38,15 +38,29 @@ dependencies {
     checkstyle 'com.puppycrawl.tools:checkstyle:8.45.1'
 }
 
-
 test {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacoco {
+    toolVersion = "0.8.12"
 }
 
 jacocoTestReport {
     reports {
-        xml.required = true
-        html.required = true
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.8
+            }
+        }
     }
 }
 
@@ -93,3 +107,4 @@ tasks.named('startShadowScripts') {
 tasks.named('jar') {
     enabled = false
 }
+
