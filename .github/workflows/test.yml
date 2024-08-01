@@ -50,5 +50,5 @@ jobs:
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
           chmod +x ./cc-test-reporter
           ./cc-test-reporter before-build
-          ./cc-test-reporter after-build --exit-code $?
+          ./cc-test-reporter after-build --exit-code ${{ steps.build.outputs.exit-code }} --coverage-input-type jacoco --id $CC_TEST_REPORTER_ID
         working-directory: app
