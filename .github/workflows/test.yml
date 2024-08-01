@@ -1,52 +1,44 @@
-name: Java CI with Gradle
+name: Run Tests and Generate Coverage Report
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: [push, pull_request]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
-          java-version: '21'
           distribution: 'temurin'
+          java-version: '21'
 
       - name: Cache Gradle packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: ${{ runner.os }}-gradle
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: Build with Gradle
         run: ./gradlew clean build
 
       - name: Run tests with Jacoco
-        run: ./gradlew clean test jacocoTestReport
+        run: ./gradlew test jacocoTestReport
 
-      - name: Download Code Climate test reporter
+      - name: Upload coverage to CodeClimate
         run: |
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
           chmod +x ./cc-test-reporter
-
-      - name: Format coverage for Code Climate
-        run: ./cc-test-reporter format-coverage build/reports/jacoco/test/jacocoTestReport.xml
-
-      - name: Upload coverage to Code Climate
+          ./cc-test-reporter before-build
+          ./gradlew jacocoTestReport
+          ./cc-test-reporter format-coverage build/reports/jacoco/test/jacocoTestReport.xml --input-type jacoco
+          ./cc-test-reporter upload-coverage
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-        run: ./cc-test-reporter upload-coverage
