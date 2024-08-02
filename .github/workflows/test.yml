@@ -25,11 +25,12 @@ jobs:
           cd app
           ./gradlew clean build jacocoTestReport
 
-      - name: Check Source Files
+      - name: Check Directory Structure
         run: |
-          ls -l app/src/main/java/hexlet/code/controllers/UrlCheckController.java
-          ls -l app/src/main/java/hexlet/code/controllers/UrlController.java
-          ls -l app/src/main/java/hexlet/code/repository/BaseRepository.java
+          echo "Checking current directory structure:"
+          find .
+          echo "Checking app/build/reports/jacoco/test directory structure:"
+          find app/build/reports/jacoco/test
 
       - name: Download Code Climate Test Reporter
         run: |
