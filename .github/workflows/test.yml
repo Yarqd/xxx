@@ -19,10 +19,9 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       - name: Test with Gradle
-        uses: gradle/gradle-build-action@v2
-        with:
-          gradle-version: 8.7
-          arguments: clean build jacocoTestReport
+        run: |
+          cd app
+          ./gradlew clean build jacocoTestReport
       - name: Download Code Climate Test Reporter
         run: |
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
