@@ -20,10 +20,18 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Test with Gradle
-        run: |
-          cd app
-          ./gradlew clean build jacocoTestReport
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}
+
+      - name: Build with Gradle
+        run: ./gradlew clean build jacocoTestReport
 
       - name: Check Directory Structure
         run: |
@@ -46,5 +54,5 @@ jobs:
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         run: |
-          ./cc-test-reporter format-coverage --input-type jacoco app/build/reports/jacoco/test/jacocoTestReport.xml --add-prefix "/home/runner/work/java-project-72/java-project-72/app/src/main/java/"
-          ./cc-test-reporter upload-coverage
+          ./cc-test-reporter format-coverage --input-type jacoco app/build/reports/jacoco/test/jacocoTestReport.xml --output coverage.json
+          ./cc-test-reporter upload-coverage --input coverage.json
