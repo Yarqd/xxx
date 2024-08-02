@@ -27,10 +27,12 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Build with Gradle
-        run: ./app/gradlew build
+        working-directory: ./app
+        run: ./gradlew build
 
       - name: Run tests
-        run: ./app/gradlew test jacocoTestReport
+        working-directory: ./app
+        run: ./gradlew test jacocoTestReport
 
       - name: Upload Jacoco report
         uses: actions/upload-artifact@v3
