@@ -43,3 +43,4 @@ jobs:
         run: |
           ./cc-test-reporter format-coverage --input-type jacoco app/build/reports/jacoco/test/jacocoTestReport.xml --add-prefix "app/src/main/java/"
           ./cc-test-reporter upload-coverage
+ваав
