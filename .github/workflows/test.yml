@@ -32,6 +32,11 @@ jobs:
           echo "Checking app/build/reports/jacoco/test directory structure:"
           find app/build/reports/jacoco/test
 
+      - name: Display jacocoTestReport.xml
+        run: |
+          echo "Displaying contents of jacocoTestReport.xml:"
+          head -n 50 app/build/reports/jacoco/test/jacocoTestReport.xml
+
       - name: Download Code Climate Test Reporter
         run: |
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
