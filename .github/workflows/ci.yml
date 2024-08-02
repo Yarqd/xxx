@@ -38,4 +38,24 @@ jobs:
         run: ./gradlew build
 
       - name: Run tests
-   
+        working-directory: ./app
+        run: ./gradlew test jacocoTestReport
+
+      - name: Upload Jacoco report
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-report
+          path: app/build/reports/jacoco/test/html/
+
+      - name: Prepare test coverage report
+        run: |
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+
+      - name: Upload coverage to Code Climate
+        run: ./cc-test-reporter after-build --exit-code ${{ steps.test.outcome }}
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
